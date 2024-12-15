@@ -1,6 +1,7 @@
 import torch
 from networks.ResNetCifar10 import ResBlock, ResNetBottom, ResNetTop
 from parties.Client import Client
+from networks import ResNetCifar100
 from parties.Host import Host
 
 class Create_model:
@@ -15,6 +16,17 @@ class Create_model:
         host = host.to(self.device)
         for i in range(self.num):
             client = Client(ResNetBottom(ResBlock))
+            client = client.to(self.device)
+            clients.append(client)
+        return clients, host
+    
+    def create_modelForCIFAR100(self):
+        clients = []
+        Model = ResNetCifar100.ResNet50Top(self.num)
+        host = Host(Model)
+        host = host.to(self.device)
+        for i in range(self.num):
+            client = Client(ResNetCifar100.ResNet50Bottom())
             client = client.to(self.device)
             clients.append(client)
         return clients, host
