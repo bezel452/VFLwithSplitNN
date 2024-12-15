@@ -22,11 +22,11 @@ class Create_model:
     
     def create_modelForCIFAR100(self):
         clients = []
-        Model = ResNetCifar100.ResNet50Top(self.num)
+        Model = ResNetCifar100.ResNetTop(self.num)
         host = Host(Model)
         host = host.to(self.device)
         for i in range(self.num):
-            client = Client(ResNetCifar100.ResNet50Bottom())
+            client = Client(ResNetCifar100.ResNetBottom())
             client = client.to(self.device)
             clients.append(client)
         return clients, host
