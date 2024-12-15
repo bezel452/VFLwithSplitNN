@@ -1,7 +1,7 @@
 import torch
 from networks.ResNetCifar10 import ResBlock, ResNetBottom, ResNetTop
 from parties.Client import Client
-from networks import ResNetCifar100, ResNeXtCINIC10
+from networks import ResNetCINIC10, ResNetCifar100
 from parties.Host import Host
 
 class Create_model:
@@ -33,11 +33,11 @@ class Create_model:
     
     def create_modelForCINIC10(self):
         clients = []
-        Model = ResNeXtCINIC10.ResNeXtTop(self.num)
+        Model = ResNetCINIC10.ResNetTop(self.num)
         host = Host(Model)
         host = host.to(self.device)
         for i in range(self.num):
-            client = Client(ResNeXtCINIC10.ResNeXtBottom(ResNeXtCINIC10.Bottleneck, [3, 4, 6, 3], num_classes=10))
+            client = Client(ResNetCINIC10.ResNetBottom())
             client = client.to(self.device)
             clients.append(client)
         return clients, host
