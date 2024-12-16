@@ -1,7 +1,7 @@
 import torch
 from networks.ResNetCifar10 import ResBlock, ResNetBottom, ResNetTop
 from parties.Client import Client
-from networks import ResNetCINIC10, ResNetCifar100
+from networks import ResNetCINIC10, ResNetCifar100, DenseNetCINIC10
 from parties.Host import Host
 
 class Create_model:
