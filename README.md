@@ -3,7 +3,7 @@ CS in Xi‘an Jiao Tong University
 
 ## Description
 
-It is the repository of code of the simulation of multi-participant's VFL with Split Neuron Network.
+It is the repository of code of the simulation of multi-participant's VFL with Split Neural Network.
 
 
 

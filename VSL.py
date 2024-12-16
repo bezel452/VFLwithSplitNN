@@ -3,6 +3,7 @@ import torch
 from datasets.cifar10 import cifar10
 from datasets.cifar100 import cifar100
 from datasets.cinic10 import cinic10
+from datasets.imagenette import imagenette
 import argparse
 
 if __name__ == '__main__':
@@ -28,6 +29,13 @@ if __name__ == '__main__':
         file_path = cinic10()
         train = Training(num_clients, file_path, epochs, batch_size, device)
         train.trainingCINIC10()
+    elif args.dataset == 'imagenette':
+        file_path = imagenette()
+        train = Training(num_clients, file_path, epochs, batch_size, device)
+        train.trainingImageNette()
+    else:
+        raise Exception("Error: Dataset not exist!")
+    
     
     
     

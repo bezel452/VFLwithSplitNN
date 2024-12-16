@@ -1,7 +1,7 @@
 import torch
 from networks.ResNetCifar10 import ResBlock, ResNetBottom, ResNetTop
 from parties.Client import Client
-from networks import ResNetCINIC10, ResNetCifar100, DenseNetCINIC10
+from networks import DenseNetImagenette, ResNetCINIC10, ResNetCifar100
 from parties.Host import Host
 
 class Create_model:
@@ -38,6 +38,17 @@ class Create_model:
         host = host.to(self.device)
         for i in range(self.num):
             client = Client(ResNetCINIC10.ResNetBottom())
+            client = client.to(self.device)
+            clients.append(client)
+        return clients, host
+    
+    def create_modelForImageNette(self):
+        clients = []
+        Model = DenseNetImagenette.DenseNetTop(self.num)
+        host = Host(Model)
+        host = host.to(self.device)
+        for i in range(self.num):
+            client = Client(DenseNetImagenette.DenseNetBottom())
             client = client.to(self.device)
             clients.append(client)
         return clients, host

@@ -96,3 +96,30 @@ def loaderCinic10(file_path, batch_size):
     testset = dataSetup.CINIC10(root=file_path, split='test', transform=transforms_)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
     return trainloader, testloader
+
+
+def split_featurForImageNette(feature, num_clients):
+    x = []
+    lenPerParty = 224 // num_clients
+    nowLen = 0
+    for i in range(num_clients):
+        if i == num_clients - 1:
+            x.append(feature[:, :, :, nowLen:224])
+        else:
+            x.append(feature[:, :, :, nowLen:nowLen+lenPerParty])
+            nowLen += lenPerParty
+    return x
+
+def loaderImageNeet(file_path, batch_size):
+    preprocess = transforms.Compose([
+        transforms.Lambda(img_format_2_rgb),
+        transforms.Resize((224, 224)),  # 调整图像大小为224x224
+        transforms.ToTensor(),  # 将图像转换为张量
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 标准化图像数据
+    ])
+    trainset = dataSetup.ImageNette(root=file_path, split='train', transform=preprocess)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    testset = dataSetup.ImageNette(root=file_path, split='val', transform=preprocess)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+    return trainloader, testloader
