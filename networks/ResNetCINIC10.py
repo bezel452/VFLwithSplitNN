@@ -42,7 +42,7 @@ class ResNet(nn.Module):
         self.layer1 = self._make_layer(block, 16, num_blocks[0], kernel_size, stride=1)
         self.layer2 = self._make_layer(block, 32, num_blocks[1], kernel_size, stride=2)
         self.layer3 = self._make_layer(block, 64, num_blocks[2], kernel_size, stride=2)
-        self.linear = nn.Linear(64, num_classes)
+        
 
         self.apply(weights_init)
 
@@ -56,20 +56,12 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
     
     def forward(self, x):
-        # [bs,3,32,16]
         out = F.relu(self.bn1(self.conv1(x)))
-        # [bs,16,32,16]
         out = self.layer1(out)
-        # [bs,16,32,16]
         out = self.layer2(out)
-        # [bs,32,16,8]
         out = self.layer3(out)
-        # [bs,64,8,4]
         out = F.avg_pool2d(out, out.size()[2:])
-        # [bs,64,1,1]
         out = out.view(out.size(0), -1)
-        # [bs,64]
-        out = self.linear(out)
         return out
     
 def resnet20(kernel_size=(3, 3), num_classes=10):
@@ -88,12 +80,8 @@ class ResNetTop(nn.Module):
     def __init__(self, num_clients,num_classes=10):
         super(ResNetTop, self).__init__()
         self.num = num_clients
-        self.fc1 = nn.Linear(10 * self.num, 10 * self.num)
-        self.bn0 = nn.BatchNorm1d(10 * self.num)
-        self.fc2 = nn.Linear(10 * self.num, 10)
-        self.bn1 = nn.BatchNorm1d(10 * self.num)
-        self.bn2 = nn.BatchNorm1d(10)
-        self.fc3 = nn.Linear(10, num_classes)
+        self.linear = nn.Linear(64 * self.num, num_classes * self.num)
+        self.fc1 = nn.Linear(num_classes * self.num, num_classes)
 
         self.apply(weights_init)
 
@@ -101,7 +89,6 @@ class ResNetTop(nn.Module):
         x = inputs[0]
         for i in range(1, self.num):
             x = torch.cat((x, inputs[i]), dim=1)
-        x = self.fc1(F.relu(self.bn0(x)))
-        x = self.fc2(F.relu(self.bn1(x)))
-        x = self.fc3(F.relu(self.bn2(x)))
+        x = F.relu(self.linear(x))
+        x = self.fc1(x)
         return F.log_softmax(x, dim=1)
