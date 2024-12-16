@@ -3,6 +3,7 @@ import torchvision.transforms as transforms
 import torchvision
 import torch
 from data import dataSetup
+import os
 
 def split_featurForCifar10(feature, num_clients):
     x = []
@@ -82,18 +83,21 @@ def img_format_2_rgb(x):
     return x.convert("RGB")
 
 def loaderCinic10(file_path, batch_size):
-    normalize_cinic = transforms.Normalize(mean=[0.47889522, 0.47227842, 0.43047404],
-                                               std=[0.24205776, 0.23828046, 0.25874835])
-    transforms_ = transforms.Compose([
-        transforms.Lambda(img_format_2_rgb),
-        transforms.Resize((32, 32)),
-        transforms.ToTensor(),
-        normalize_cinic
+    train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.Resize((32, 32)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    trainset = dataSetup.CINIC10(root=file_path, split='train', transform=transforms_)
+    test_transform = transforms.Compose([
+        transforms.Resize((32, 32)),  
+        transforms.ToTensor(),        
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 标准化
+    ])
+    trainset = torchvision.datasets.ImageFolder(os.path.join(file_path, 'train'), transform=train_transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
-
-    testset = dataSetup.CINIC10(root=file_path, split='test', transform=transforms_)
+    testset = torchvision.datasets.ImageFolder(os.path.join(file_path, 'test'), transform=test_transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
     return trainloader, testloader
 
@@ -110,7 +114,7 @@ def split_featurForImageNette(feature, num_clients):
             nowLen += lenPerParty
     return x
 
-def loaderImageNeet(file_path, batch_size):
+def loaderImageNette(file_path, batch_size):
     preprocess = transforms.Compose([
         transforms.Lambda(img_format_2_rgb),
         transforms.Resize((224, 224)),  # 调整图像大小为224x224

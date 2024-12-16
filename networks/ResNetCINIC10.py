@@ -88,12 +88,14 @@ class ResNetTop(nn.Module):
     def __init__(self, num_clients,num_classes=10):
         super(ResNetTop, self).__init__()
         self.num = num_clients
-        self.fc1 = nn.Linear(10 * self.num, 512 * self.num)
+        self.fc1 = nn.Linear(10 * self.num, 10 * self.num)
         self.bn0 = nn.BatchNorm1d(10 * self.num)
-        self.fc2 = nn.Linear(512 * self.num, 512)
-        self.bn1 = nn.BatchNorm1d(512 * self.num)
-        self.bn2 = nn.BatchNorm1d(512)
-        self.fc3 = nn.Linear(512, num_classes)
+        self.fc2 = nn.Linear(10 * self.num, 10)
+        self.bn1 = nn.BatchNorm1d(10 * self.num)
+        self.bn2 = nn.BatchNorm1d(10)
+        self.fc3 = nn.Linear(10, num_classes)
+
+        self.apply(weights_init)
 
     def forward(self, inputs):
         x = inputs[0]
