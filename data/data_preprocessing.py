@@ -88,12 +88,12 @@ def loaderCinic10(file_path, batch_size):
     transforms.RandomCrop(32, padding=4),
     transforms.Resize((32, 32)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])
     test_transform = transforms.Compose([
         transforms.Resize((32, 32)),  
         transforms.ToTensor(),        
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 标准化
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))  
     ])
     trainset = torchvision.datasets.ImageFolder(os.path.join(file_path, 'train'), transform=train_transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
@@ -104,26 +104,31 @@ def loaderCinic10(file_path, batch_size):
 
 def split_featurForImageNette(feature, num_clients):
     x = []
-    lenPerParty = 224 // num_clients
+    lenPerParty = 32 // num_clients
     nowLen = 0
     for i in range(num_clients):
         if i == num_clients - 1:
-            x.append(feature[:, :, :, nowLen:224])
+            x.append(feature[:, :, :, nowLen:32])
         else:
             x.append(feature[:, :, :, nowLen:nowLen+lenPerParty])
             nowLen += lenPerParty
     return x
 
 def loaderImageNette(file_path, batch_size):
-    preprocess = transforms.Compose([
-        transforms.Lambda(img_format_2_rgb),
-        transforms.Resize((224, 224)),  # 调整图像大小为224x224
-        transforms.ToTensor(),  # 将图像转换为张量
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # 标准化图像数据
+    train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.Resize((32, 32)),
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])
-    trainset = dataSetup.ImageNette(root=file_path, split='train', transform=preprocess)
+    test_transform = transforms.Compose([
+        transforms.Resize((32, 32)),  
+        transforms.ToTensor(),        
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))  
+    ])
+    trainset = torchvision.datasets.ImageFolder(os.path.join(file_path, 'train'), transform=train_transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
-
-    testset = dataSetup.ImageNette(root=file_path, split='val', transform=preprocess)
+    testset = torchvision.datasets.ImageFolder(os.path.join(file_path, 'val'), transform=test_transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
     return trainloader, testloader

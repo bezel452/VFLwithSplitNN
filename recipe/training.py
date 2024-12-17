@@ -35,7 +35,8 @@ class Training:
 
     def trainingCINIC10(self):
         create = Create_model(self.num, self.device)
-        clients, host = create.create_modelForCINIC10()
+    #    clients, host = create.create_modelForCINIC10()
+        clients, host = create.create_modelForCINIC10p()
         Top_loss = nn.CrossEntropyLoss()
         trainloader, testloader = loaderCinic10(self.file, self.bs)
         self.training(clients=clients, host=host, Top_loss=Top_loss, trainloader=trainloader, testloader=testloader, mode="CINIC10", lr=self.lr, momentum=self.mo)
@@ -117,7 +118,9 @@ class Training:
                     raise Exception("Error! Unknown Dataset.")
                 inputs = []
                 for j in range(self.num):
+                    clients[j].eval()
                     inputs.append(clients[j](x[j]))
+                host.eval()
                 output = host(inputs)
                 _, predicted = torch.max(output.data, 1)
                 total += label.size(0)
