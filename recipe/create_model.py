@@ -1,7 +1,7 @@
 import torch
 from networks.ResNetCifar10 import ResBlock, ResNetBottom, ResNetTop
 from parties.Client import Client
-from networks import DenseNetImagenette, ResNetCINIC10, ResNetCifar100, ResNetCINIC10p
+from networks import DenseNetImagenette, ResNetCINIC10, ResNetCifar100, LRBHI, ResNetCINIC10p
 from parties.Host import Host
 
 class Create_model:
@@ -59,6 +59,17 @@ class Create_model:
         host = host.to(self.device)
         for i in range(self.num):
             client = Client(DenseNetImagenette.DenseNetBottom())
+            client = client.to(self.device)
+            clients.append(client)
+        return clients, host
+    
+    def create_modelForBHI(self):
+        clients = []
+        Model = LRBHI.LRTop(self.num)
+        host = Host(Model)
+        host = host.to(self.device)
+        for i in range(self.num):
+            client = Client(LRBHI.LogisticRegressionBottom(30 // self.num, 2))
             client = client.to(self.device)
             clients.append(client)
         return clients, host

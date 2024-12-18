@@ -38,6 +38,10 @@ if __name__ == '__main__':
         file_path = imagenette()
         train = Training(num_clients, file_path, epochs, batch_size, lr, mom, device)
         train.trainingImageNette()
+    elif args.dataset == 'BHI':
+        file_path = ''
+        train = Training(num_clients, file_path, epochs, batch_size, lr, mom, device)
+        train.trainingBHI()
     else:
         raise Exception("Error: Dataset not exist!")
     

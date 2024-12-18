@@ -4,6 +4,9 @@ import torchvision
 import torch
 from data import dataSetup
 import os
+from sklearn.datasets import load_breast_cancer
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 def split_featurForCifar10(feature, num_clients):
     x = []
@@ -126,4 +129,29 @@ def loaderImageNette(file_path, batch_size):
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
     testset = torchvision.datasets.ImageFolder(os.path.join(file_path, 'val'), transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+    return trainloader, testloader
+
+def split_featureBHI(feature, num_clients):
+    x = []
+    lenPerParty = 30 // num_clients
+    nowLen = 0
+    for i in range(num_clients):
+        if i == num_clients - 1:
+            x.append(feature[:, nowLen:30].float())
+        else:
+            x.append(feature[:, nowLen:nowLen+lenPerParty].float())
+            nowLen += lenPerParty
+    return x
+
+def loaderBHI(file_path, batch_size):
+    breast = load_breast_cancer()
+    X_train, X_test, y_train, y_test = train_test_split(breast.data, breast.target, test_size=0.2, random_state=1)
+    std = StandardScaler()
+    X_train = std.fit_transform(X_train) # 标准化数据
+    X_test = std.transform(X_test)
+    trainset = dataSetup.BreastData(X_train, y_train)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+
+    testset = dataSetup.BreastData(X_test, y_test)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
     return trainloader, testloader

@@ -43,3 +43,13 @@ class ImageNette(Dataset):
     def read_image(self, path):
         img = Image.open(path)
         return self.transform(img) if self.transform else img
+    
+class BreastData(Dataset):
+    def __init__(self, feature, label):
+        self.feature, self.label = feature, label
+
+    def __getitem__(self, index):
+        return self.feature[index], self.label[index]
+    
+    def __len__(self):
+        return len(self.label)
